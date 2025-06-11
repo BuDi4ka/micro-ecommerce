@@ -14,8 +14,7 @@ def product_create(request):
             obj.user = request.user
             obj.save()
             return redirect('products:create')
-        else:
-            form.add_error("User must be logged in")
+        form.add_error(None, "You must be logged in to create products")
 
     context["form"] = form
     return render(request, "products/create.html", context)
