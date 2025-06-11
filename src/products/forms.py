@@ -3,6 +3,7 @@ from .models import Product
 
 
 input_css_class = "form-control"
+# input_css_class = ""
 
 
 class ProductForm(forms.ModelForm):
