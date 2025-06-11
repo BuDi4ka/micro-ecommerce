@@ -13,7 +13,7 @@ def product_create(request):
         if request.user.is_authenticated:
             obj.user = request.user
             obj.save()
-            return redirect('products/create')
+            return redirect('products:create')
         else:
             form.add_error("User must be logged in")
 
