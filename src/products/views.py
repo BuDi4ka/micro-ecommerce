@@ -21,4 +21,7 @@ def product_create(request):
 
 
 def product_list(request):
-    return render(request, "products/list.html", {})
+    object_list = Product.objects.all()
+    return render(request, "products/list.html", {
+        "object_list": object_list
+    })
