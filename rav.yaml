@@ -1,11 +1,11 @@
 scripts:
   server: cd src && python manage.py runserver
   migrate: cd src && python manage.py migrate
-  freeze: venv/bin/python -m pip freeze
+  freeze: .venv/bin/python -m pip freeze
   watch: npx tailwindcss -i ./src/static/tailwind/tailwind-input.css -o ./src/static/css/output.css --watch
   installs:
-    - venv/bin/pip-compile src/requirements/requirements.in -o src/requirements.txt
-    - venv/bin/python -m pip install -r src/requirements.txt
+    - .venv/bin/pip-compile src/requirements/requirements.in -o src/requirements.txt
+    - .venv/bin/python -m pip install -r src/requirements.txt
     - npm install
   win_installs:
     - pip-compile src/requirements/requirements.in -o src/requirements.txt
