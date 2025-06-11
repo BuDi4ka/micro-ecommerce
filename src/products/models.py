@@ -11,10 +11,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=9.99)
     og_price = models.DecimalField(max_digits=10, decimal_places=2, default=9.99)
     # stripe_price_id
+    stripe_price = models.IntegerField(default=999)  # 100 * price
     price_changed_timestamp = models.DateTimeField(
         auto_now_add=False, blank=True, null=True
     )
-    stripe_price = models.IntegerField(default=999)  # 100 * price
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
