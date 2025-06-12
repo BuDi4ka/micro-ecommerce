@@ -1,6 +1,6 @@
 import mimetypes
 
-from django.http import FileResponse, HttpResponseBadRequest
+from django.http import FileResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
@@ -35,22 +35,29 @@ def product_manage_detail(request, handle=None):
     if request.user.is_authenticated:
         is_manager = obj.user == request.user
     context = {"object": obj}
-    print(context)
+
     if not is_manager:
         return HttpResponseBadRequest()
-    form = ProductUpdateForm(
-        request.POST or None, request.FILES or None, instance=obj
+
+    form = ProductUpdateForm(request.POST or None, request.FILES or None, instance=obj)
+    formset = ProductAttachmentInlineFormSet(
+        request.POST or None,
+        request.FILES or None,
+        queryset=attachments,
     )
-    formset = ProductAttachmentInlineFormSet(request.POST or None,request.FILES or None, queryset=attachments)
+
     if form.is_valid() and formset.is_valid():
-        instance = form.save(commit=False)
-        instance.save()
-        formset.save(commit=False)
-        for _form in formset:
-            attachment_obj = _form.save(commit=False)
-            attachment_obj.product = instance
-            attachment_obj.save()
-        # return redirect("products:create")
+        instance = form.save()
+
+        instances = formset.save(commit=False)
+
+        for obj in formset.deleted_objects:
+            obj.delete()
+
+        for instance in instances:
+            instance.product = obj
+            instance.save()
+
     context["form"] = form
     context["formset"] = formset
     return render(request, "products/manager.html", context)
@@ -75,10 +82,15 @@ def product_attachment_download(request, handle=None, pk=None):
         can_download = True
     if can_download is False:
         return HttpResponseBadRequest()
-    file = attachment.file.open(mode="rb")
+
+    try:
+        file = attachment.file.open(mode="rb")
+    except FileNotFoundError:
+        raise Http404("File not found.")
+
     filename = attachment.file.name
     content_type, _ = mimetypes.guess_type(filename)
     response = FileResponse(file)
-    response['Content-Type'] = content_type or 'application/octet-stream'
+    response["Content-Type"] = content_type or "application/octet-stream"
     response["Content-Disposition"] = f"attachment;filename={filename}"
     return response
