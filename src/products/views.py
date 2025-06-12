@@ -35,34 +35,33 @@ def product_manage_detail(request, handle=None):
     if request.user.is_authenticated:
         is_manager = obj.user == request.user
     context = {"object": obj}
-
     if not is_manager:
         return HttpResponseBadRequest()
-
     form = ProductUpdateForm(request.POST or None, request.FILES or None, instance=obj)
-    formset = ProductAttachmentInlineFormSet(
-        request.POST or None,
-        request.FILES or None,
-        queryset=attachments,
-    )
-
+    formset = ProductAttachmentInlineFormSet(request.POST or None, 
+                                             request.FILES or None,queryset=attachments)
     if form.is_valid() and formset.is_valid():
-        instance = form.save()
-
-        instances = formset.save(commit=False)
-
-        for obj in formset.deleted_objects:
-            obj.delete()
-
-        for instance in instances:
-            instance.product = obj
-            instance.save()
-
+        instance = form.save(commit=False)
+        instance.save()
+        formset.save(commit=False)
+        for _form in formset:
+            is_delete = _form.cleaned_data.get("DELETE")
+            try:
+                attachment_obj = _form.save(commit=False)
+            except:
+                attachment_obj = None
+            if is_delete:
+                if attachment_obj is not None:
+                    if attachment_obj.pk:
+                        attachment_obj.delete()
+            else:
+                if attachment_obj is not None:
+                    attachment_obj.product  = instance
+                    attachment_obj.save()
         return redirect(obj.get_manage_url())
-
-    context["form"] = form
-    context["formset"] = formset
-    return render(request, "products/manager.html", context)
+    context['form'] = form
+    context['formset'] = formset
+    return render(request, 'products/manager.html', context)
 
 
 def product_detail(request, handle=None):
