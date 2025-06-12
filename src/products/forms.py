@@ -33,8 +33,24 @@ class ProductUpdateForm(forms.ModelForm):
             self.fields[field].widget.attrs["class"] = input_css_class
 
 
+class ProductAttachmentForm(forms.ModelForm):
+    # name = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
+    class Meta:
+        model = ProductAttachment
+        fields = ["file", "name", "is_free", "active"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields["name"].widget.attrs["placeholder"] = "Your name"
+        for field in self.fields:
+            if field in ["is_free", "active"]:
+                continue
+            self.fields[field].widget.attrs["class"] = input_css_class
+
+
 ProductAttachmentModelFormSet = modelformset_factory(
     ProductAttachment,
+    form=ProductAttachmentForm,
     fields = ['file', 'name', 'is_free', 'active'],
     extra = 0,
     can_delete= False
@@ -44,8 +60,9 @@ ProductAttachmentModelFormSet = modelformset_factory(
 ProductAttachmentInlineFormSet = inlineformset_factory(
     Product,
     ProductAttachment,
+    form=ProductAttachmentForm,
     formset=ProductAttachmentModelFormSet,
     fields = ['file', 'name', 'is_free', 'active'],
-    extra = 0,
+    extra = 1,
     can_delete= False
 )
