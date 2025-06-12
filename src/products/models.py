@@ -67,3 +67,9 @@ class ProductAttachment(models.Model):
     @property
     def display_name(self):
         return self.name or pathlib.Path(self.file.name).name
+    
+    def get_download_url(self):
+        return reverse("products:attachment-download", kwargs={
+            "handle": self.product.handle,
+            "pk": self.pk
+        })

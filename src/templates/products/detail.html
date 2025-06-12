@@ -21,7 +21,7 @@
     </p>
 
     {% if is_owner %}
-        {% include "products/attachments-table.html" with attachments=attachments%}
+        {% include "products/attachments-table.html" with attachments=attachments is_owner=is_owner%}
     {% endif %}
   </div>
 

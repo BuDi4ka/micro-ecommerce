@@ -26,7 +26,7 @@
                             {% if attachment.active %}🟢{% else %}🔴{% endif %}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="{% url 'products:attachment-download' handle=object.handle pk=attachment.pk %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                            {% if is_owner or attachment.is_free %}{% endif %}<a href="{{ attachment.get_download_url }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                 Download
                             </a>
                         </td>
