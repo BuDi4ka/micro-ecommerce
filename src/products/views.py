@@ -1,7 +1,10 @@
+import mimetypes
+
+from django.http import FileResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
-from .models import Product
+from .models import Product, ProductAttachment
 from .forms import ProductForm, ProductUpdateForm
 
 
@@ -33,7 +36,9 @@ def product_detail(request, handle=None):
     context = {"object": obj}
     print(context)
     if is_owner:
-        form = ProductUpdateForm(request.POST or None, request.FILES or None, instance=obj)
+        form = ProductUpdateForm(
+            request.POST or None, request.FILES or None, instance=obj
+        )
         print(form)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -41,3 +46,21 @@ def product_detail(request, handle=None):
             # return redirect("products:create")
         context["form"] = form
     return render(request, "products/detail.html", context)
+
+
+def product_attacment_download(request, handle=None, pk=None):
+
+    attachment = get_object_or_404(ProductAttachment, product__handle=handle, pk=pk)
+    can_download = False
+    can_download = attachment.is_free or False
+    if request.user.is_authenticated:
+        can_download = True
+    if can_download is False:
+        return HttpResponseBadRequest()
+    file = attachment.file.open(mode="rb")
+    filename = attachment.file.name
+    content_type, _ = mimetypes.guess_type(filename)
+    response = FileResponse(file)
+    response['Content-Type'] = content_type or 'application/octet-stream'
+    response["Content-Disposition"] = f"attachment;filename={filename}"
+    return response
