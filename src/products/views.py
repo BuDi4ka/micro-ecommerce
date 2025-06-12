@@ -16,7 +16,7 @@ def product_create(request):
         if request.user.is_authenticated:
             obj.user = request.user
             obj.save()
-            return redirect("products:create")
+            return redirect(obj.get_manage_url())
         form.add_error(None, "You must be logged in to create products")
 
     context["form"] = form
@@ -57,6 +57,8 @@ def product_manage_detail(request, handle=None):
         for instance in instances:
             instance.product = obj
             instance.save()
+
+        return redirect(obj.get_manage_url())
 
     context["form"] = form
     context["formset"] = formset

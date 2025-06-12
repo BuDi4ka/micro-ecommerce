@@ -39,6 +39,9 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("products:detail", kwargs={"handle": self.handle})
+    
+    def get_manage_url(self):
+        return reverse("products:manage-detail", kwargs={"handle": self.handle})
 
     def __str__(self):
         return f"{self.name}, {self.user}"
