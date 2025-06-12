@@ -43,7 +43,7 @@ class Product(models.Model):
 
 
 def handle_product_attachment_upload(instance, filename):
-    return "products/{instance.product.handle}/attachments/{filename}"
+    return f"products/{instance.product.handle}/attachments/{filename}"
 
 
 class ProductAttachment(models.Model):
@@ -51,7 +51,6 @@ class ProductAttachment(models.Model):
     file = models.FileField(
         upload_to=handle_product_attachment_upload, storage=protected_storage
     )
-    handle = models.SlugField(unique=True)
     is_free = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
