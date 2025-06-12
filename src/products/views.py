@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from .models import Product, ProductAttachment
-from .forms import ProductForm, ProductUpdateForm
+from .forms import ProductForm, ProductUpdateForm, ProductAttachmentInlineFormSet
 
 
 def product_create(request):
@@ -30,22 +30,30 @@ def product_list(request):
 
 def product_manage_detail(request, handle=None):
     obj = get_object_or_404(Product, handle=handle)
+    attachments = ProductAttachment.objects.filter(product=obj)
     is_manager = False
     if request.user.is_authenticated:
         is_manager = obj.user == request.user
     context = {"object": obj}
     print(context)
-    if is_manager:
-        form = ProductUpdateForm(
-            request.POST or None, request.FILES or None, instance=obj
-        )
-        print(form)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.save()
-            # return redirect("products:create")
-        context["form"] = form
-    return render(request, "products/detail.html", context)
+    if not is_manager:
+        return HttpResponseBadRequest()
+    form = ProductUpdateForm(
+        request.POST or None, request.FILES or None, instance=obj
+    )
+    formset = ProductAttachmentInlineFormSet(request.POST or None,request.FILES or None, queryset=attachments)
+    if form.is_valid() and formset.is_valid():
+        instance = form.save(commit=False)
+        instance.save()
+        formset.save(commit=False)
+        for _form in formset:
+            attachment_obj = _form.save(commit=False)
+            attachment_obj.product = instance
+            attachment_obj.save()
+        # return redirect("products:create")
+    context["form"] = form
+    context["formset"] = formset
+    return render(request, "products/manager.html", context)
 
 
 def product_detail(request, handle=None):
