@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from .models import Product
-from .forms import ProductForm
+from .forms import ProductForm, ProductUpdateForm
 
 
 def product_create(request):
@@ -33,15 +33,11 @@ def product_detail(request, handle=None):
     context = {"object": obj}
     print(context)
     if is_owner:
-        form = ProductForm(request.POST or None, instance=obj)
+        form = ProductUpdateForm(request.POST or None, instance=obj)
         print(form)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.save()
             # return redirect("products:create")
         context["form"] = form
-    print(f"User authenticated: {request.user.is_authenticated}")
-    print(f"Product owner: {obj.user}")
-    print(f"Current user: {request.user}")
-    print(f"Is owner: {is_owner}")
     return render(request, "products/detail.html", context)
