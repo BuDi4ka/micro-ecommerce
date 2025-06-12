@@ -33,7 +33,7 @@ def product_detail(request, handle=None):
     context = {"object": obj}
     print(context)
     if is_owner:
-        form = ProductUpdateForm(request.POST or None, instance=obj)
+        form = ProductUpdateForm(request.POST or None, request.FILES or None, instance=obj)
         print(form)
         if form.is_valid():
             obj = form.save(commit=False)
