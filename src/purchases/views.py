@@ -1,6 +1,6 @@
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-
+import random 
 
 from products.models import Product
 from .models import Purchase
@@ -18,7 +18,13 @@ def purchase_start(request):
 
     request.session["purchase_id"] = purchase.id
 
-    return HttpResponse("Started")
+    number = random.randint(0, 1)
+    print(number)
+
+    if number == 1:
+        return HttpResponseRedirect ('/purchases/success')
+    
+    return HttpResponseRedirect ('/purchases/stopped')
 
 
 def purchase_success(request):

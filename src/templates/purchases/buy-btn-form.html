@@ -1,0 +1,17 @@
+{% if product %}
+    <form method="POST" action="{% url 'purchases:start' %}">
+        {% csrf_token %}
+        <input type="hidden" value="{{ product.handle }}" name="handle">
+        <div class="flex items-baseline text-gray-900 dark:text-white">
+        <span class="text-3xl font-semibold">$</span>
+        <span class="text-5xl font-extrabold tracking-tight">{{ product.display_price }}</span>
+        </div>
+
+        <button
+        type="submit"
+        class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        >
+        Buy Now
+        </button>
+    </form>
+{% endif %}

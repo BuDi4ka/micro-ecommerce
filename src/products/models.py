@@ -38,8 +38,12 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def display_price(self):
+        return self.price
+    
+    @property
     def display_name(self):
-        return self.name 
+        return self.name
 
     def get_absolute_url(self):
         return reverse("products:detail", kwargs={"handle": self.handle})
