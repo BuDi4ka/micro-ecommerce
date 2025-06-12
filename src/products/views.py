@@ -58,7 +58,7 @@ def product_detail(request, handle=None):
     return render(request, "products/detail.html", context)
 
 
-def product_attacment_download(request, handle=None, pk=None):
+def product_attachment_download(request, handle=None, pk=None):
 
     attachment = get_object_or_404(ProductAttachment, product__handle=handle, pk=pk)
     can_download = False
