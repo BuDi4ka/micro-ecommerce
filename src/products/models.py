@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 
 
 class Product(models.Model):
@@ -25,6 +26,9 @@ class Product(models.Model):
             self.stripe_price = int(self.price * 100)
             self.price_changed_timestamp = timezone.now()
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('products:detail', kwargs={'handle': self.handle})
 
     def __str__(self):
         return f'{self.name}, {self.user}'
