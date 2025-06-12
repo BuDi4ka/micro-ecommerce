@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from .models import Product
@@ -13,7 +13,7 @@ def product_create(request):
         if request.user.is_authenticated:
             obj.user = request.user
             obj.save()
-            return redirect('products:create')
+            return redirect("products:create")
         form.add_error(None, "You must be logged in to create products")
 
     context["form"] = form
@@ -22,6 +22,26 @@ def product_create(request):
 
 def product_list(request):
     object_list = Product.objects.all()
-    return render(request, "products/list.html", {
-        "object_list": object_list
-    })
+    return render(request, "products/list.html", {"object_list": object_list})
+
+
+def product_detail(request, handle=None):
+    obj = get_object_or_404(Product, handle=handle)
+    is_owner = False
+    if request.user.is_authenticated:
+        is_owner = obj.user == request.user
+    context = {"object": obj}
+    print(context)
+    if is_owner:
+        form = ProductForm(request.POST or None, instance=obj)
+        print(form)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.save()
+            # return redirect("products:create")
+        context["form"] = form
+    print(f"User authenticated: {request.user.is_authenticated}")
+    print(f"Product owner: {obj.user}")
+    print(f"Current user: {request.user}")
+    print(f"Is owner: {is_owner}")
+    return render(request, "products/detail.html", context)
