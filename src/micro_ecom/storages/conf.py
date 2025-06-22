@@ -7,7 +7,7 @@ AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default=None)
 # AWS_STORAGE_BUCKET_NAME = "micro-ecommerce-bucket"
 
 # DEV STORAGE
-AWS_STORAGE_BUCKET_NAME = "micro-ecommerce-bucket-dev"
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default=None)
 
 AWS_S3_ENDPOINT_URL = "https://lon1.digitaloceanspaces.com"  # region-only endpoint
 AWS_S3_SIGNATURE_VERSION = "s3v4"
