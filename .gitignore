@@ -265,3 +265,5 @@ dist
 .vscode
 
 local-cdn/
+
+.idea
