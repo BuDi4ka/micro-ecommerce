@@ -48,7 +48,7 @@ class Product(models.Model):
                     product=self.stripe_product_id,
                     unit_amount=self.stripe_price,
                     currency="usd",
-                    )
+                )
                 self.stripe_price_id = stripe_price_obj.id
             self.price_changed_timestamp = timezone.now()
         super().save(*args, **kwargs)
@@ -56,14 +56,14 @@ class Product(models.Model):
     @property
     def display_price(self):
         return self.price
-    
+
     @property
     def display_name(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse("products:detail", kwargs={"handle": self.handle})
-    
+
     def get_manage_url(self):
         return reverse("products:manage-detail", kwargs={"handle": self.handle})
 
@@ -78,7 +78,9 @@ def handle_product_attachment_upload(instance, filename):
 class ProductAttachment(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     file = models.FileField(
-        upload_to=handle_product_attachment_upload, storage=protected_storage
+        upload_to=handle_product_attachment_upload,storage=protected_storage,
+        blank=True, 
+        null=True
     )
     name = models.CharField(max_length=120, null=True, blank=True)
     is_free = models.BooleanField(default=False)
@@ -87,19 +89,19 @@ class ProductAttachment(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.name:
+        if not self.name and self.file:
             self.name = pathlib.Path(self.file.name).name
         super().save(*args, **kwargs)
 
     @property
     def display_name(self):
         return self.name or pathlib.Path(self.file.name).name
-    
+
     def get_download_url(self):
-        return reverse("products:attachment-download", kwargs={
-            "handle": self.product.handle,
-            "pk": self.pk
-        })
-    
+        return reverse(
+            "products:attachment-download",
+            kwargs={"handle": self.product.handle, "pk": self.pk},
+        )
+
     def __str__(self):
-        return f'{self.name} - {self.product}'
+        return f"{self.name} - {self.product}"

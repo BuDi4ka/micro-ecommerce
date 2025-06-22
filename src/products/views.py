@@ -38,11 +38,15 @@ def product_manage_detail(request, handle=None):
     if not is_manager:
         return HttpResponseBadRequest()
     form = ProductUpdateForm(request.POST or None, request.FILES or None, instance=obj)
-    formset = ProductAttachmentInlineFormSet(request.POST or None, 
-                                             request.FILES or None,queryset=attachments)
+    formset = ProductAttachmentInlineFormSet(
+        request.POST or None, request.FILES or None, queryset=attachments
+    )
     if form.is_valid() and formset.is_valid():
+        print("Form is valid")
         instance = form.save(commit=False)
+        print("Before save:", instance.name, instance.price)
         instance.save()
+        print("After save:", instance.name, instance.price)
         formset.save(commit=False)
         for _form in formset:
             is_delete = _form.cleaned_data.get("DELETE")
@@ -56,12 +60,15 @@ def product_manage_detail(request, handle=None):
                         attachment_obj.delete()
             else:
                 if attachment_obj is not None:
-                    attachment_obj.product  = instance
+                    attachment_obj.product = instance
                     attachment_obj.save()
         return redirect(obj.get_manage_url())
-    context['form'] = form
-    context['formset'] = formset
-    return render(request, 'products/manager.html', context)
+    else:
+        print("Form errors:", form.errors)
+        print("Formset errors:", formset.errors)
+    context["form"] = form
+    context["formset"] = formset
+    return render(request, "products/manager.html", context)
 
 
 def product_detail(request, handle=None):
@@ -69,7 +76,9 @@ def product_detail(request, handle=None):
     attachments = ProductAttachment.objects.filter(product=obj)
     is_owner = False
     if request.user.is_authenticated:
-        is_owner = request.user.purchase_set.all().filter(product=obj, completed=True).exists()
+        is_owner = (
+            request.user.purchase_set.all().filter(product=obj, completed=True).exists()
+        )
     context = {"object": obj, "is_owner": is_owner, "attachments": attachments}
     return render(request, "products/detail.html", context)
 
