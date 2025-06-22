@@ -31,24 +31,18 @@ def purchase_start(request):
         return HttpResponseBadRequest()
     
     purchase = Purchase.objects.create(user=request.user, product=obj)
-    request.session["purchase_id"] = purchase.id
+    request.session['purchase_id'] = purchase.id
 
-    #Stripe checkout
-    success_path = reverse('purchases:success')
+    success_path = reverse("purchases:success")
     if not success_path.startswith("/"):
         success_path = f"/{success_path}"
-
-    cancel_path = reverse('purchases:stopped')
-    if not cancel_path.startswith("/"):
-        cancel_path = f"/{cancel_path}"
-
-    success_url = f"{BASE_ENDPOINT}{success_path}/"
-    cancel_url = f"{BASE_ENDPOINT}{cancel_path}/"
-
+    cancel_path = reverse("purchases:stopped")
+    success_url = f"{BASE_ENDPOINT}{success_path}"
+    cancel_url = f"{BASE_ENDPOINT}{cancel_path}"
     print(success_url, cancel_url)
-
+    
     checkout_session = stripe.checkout.Session.create(
-        line_items=[
+        line_items = [
             {
                 "price": stripe_price_id,
                 "quantity": 1,
@@ -56,12 +50,10 @@ def purchase_start(request):
         ],
         mode="payment",
         success_url=success_url,
-        cancel_url=cancel_url,
+        cancel_url=cancel_url
     )
-    
     purchase.stripe_checkout_session_id = checkout_session.id
     purchase.save()
-    
     return HttpResponseRedirect(checkout_session.url)
 
 
