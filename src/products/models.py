@@ -1,4 +1,5 @@
 import pathlib
+import stripe
 
 from django.db import models
 from django.core.files.storage import FileSystemStorage
@@ -6,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
 
-import stripe
+from micro_ecom.storages.backends import ProtectedFileStorage
 from micro_ecom.env import config
 
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default=None)
@@ -14,7 +15,7 @@ stripe.api_key = STRIPE_SECRET_KEY
 
 
 PROTECTED_MEDIA_ROOT = settings.PROTECTED_MEDIA_ROOT
-protected_storage = FileSystemStorage(location=str(PROTECTED_MEDIA_ROOT))
+protected_storage = ProtectedFileStorage() 
 
 
 class Product(models.Model):
