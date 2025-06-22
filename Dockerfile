@@ -4,14 +4,14 @@ COPY ./src/ /app/
 WORKDIR /app
 
 # os-level installs
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get update && apt-get install -y --fix-missing \
     build-essential \
     python3-dev \
     python3-setuptools \
-    libpq-dev \ 
+    libpq-dev \
     gcc \
     make
+
 
 # venv & installs
 RUN python3 -m venv /opt/venv && \
