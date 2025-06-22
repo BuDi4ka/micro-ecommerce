@@ -3,7 +3,12 @@ from micro_ecom.env import config
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default=None)
 
-AWS_STORAGE_BUCKET_NAME = "micro-ecommerce-bucket"
+# MAIN STORAGE
+# AWS_STORAGE_BUCKET_NAME = "micro-ecommerce-bucket"
+
+# DEV STORAGE
+AWS_STORAGE_BUCKET_NAME = "micro-ecommerce-bucket-dev"
+
 AWS_S3_ENDPOINT_URL = "https://lon1.digitaloceanspaces.com"  # region-only endpoint
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_USE_SSL = True
