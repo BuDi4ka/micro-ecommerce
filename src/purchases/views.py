@@ -1,8 +1,6 @@
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-import random 
 import stripe 
 
 from products.models import Product
@@ -36,8 +34,9 @@ def purchase_start(request):
     success_path = reverse("purchases:success")
     if not success_path.startswith("/"):
         success_path = f"/{success_path}"
+
     cancel_path = reverse("purchases:stopped")
-    success_url = f"{BASE_ENDPOINT}{success_path}"
+    success_url = f"{BASE_ENDPOINT}{success_path}?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{BASE_ENDPOINT}{cancel_path}"
     print(success_url, cancel_url)
     
@@ -58,13 +57,26 @@ def purchase_start(request):
 
 
 def purchase_success(request):
-    purchase_id = request.session.get("purchase_id")
-    if purchase_id:
-        purchase = Purchase.objects.get(id=purchase_id)
-        purchase.completed = True
-        purchase.save()
-    
-    return HttpResponse("Success")
+    session_id = request.GET.get("session_id")
+    if not session_id:
+        return HttpResponseBadRequest("Missing session ID")
+
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+    except stripe.error.StripeError:
+        return HttpResponseBadRequest("Invalid session ID")
+
+    if session.payment_status == "paid":
+        try:
+            purchase = Purchase.objects.get(stripe_checkout_session_id=session_id)
+            purchase.completed = True
+            purchase.save()
+        except Purchase.DoesNotExist:
+            return HttpResponseBadRequest("Purchase not found")
+
+        return HttpResponse("Success: payment completed!")
+    else:
+        return HttpResponse("Payment not completed.")
 
 
 def purchase_stopped(request):

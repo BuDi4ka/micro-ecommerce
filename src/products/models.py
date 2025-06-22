@@ -36,11 +36,13 @@ class Product(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if self.name:
+        # Create Stripe Product if not exists
+        if not self.stripe_product_id and self.name:
             stripe_product_r = stripe.Product.create(name=self.name)
             self.stripe_product_id = stripe_product_r.id
-        if self.price != self.og_price:
-            # price changed
+
+        # Create or update Stripe Price if price changed or price id missing
+        if (self.price != self.og_price) or (not self.stripe_price_id):
             self.og_price = self.price
             self.stripe_price = int(self.price * 100)
             if self.stripe_product_id:
@@ -51,6 +53,7 @@ class Product(models.Model):
                 )
                 self.stripe_price_id = stripe_price_obj.id
             self.price_changed_timestamp = timezone.now()
+
         super().save(*args, **kwargs)
 
     @property
