@@ -20,9 +20,12 @@
       change.
     </p>
 
-    {% if is_owner %}
+    {% if attachments %}
         {% include "products/attachments-table.html" with attachments=attachments is_owner=is_owner %}
+    {% else %}
+        <p class="text-gray-500 dark:text-gray-400">No attachments available.</p>
     {% endif %}
+
   </div>
 
   <div class="w-full md:w-1/4 space-y-4">

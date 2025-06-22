@@ -73,14 +73,21 @@ def product_manage_detail(request, handle=None):
 
 def product_detail(request, handle=None):
     obj = get_object_or_404(Product, handle=handle)
-    attachments = ProductAttachment.objects.filter(product=obj)
+
+    # Check if user owns product (completed purchase)
     is_owner = False
     if request.user.is_authenticated:
-        is_owner = (
-            request.user.purchase_set.all().filter(product=obj, completed=True).exists()
-        )
+        is_owner = request.user.purchase_set.filter(product=obj, completed=True).exists()
+
+    # Filter attachments based on ownership
+    if is_owner:
+        attachments = ProductAttachment.objects.filter(product=obj)
+    else:
+        attachments = ProductAttachment.objects.filter(product=obj, is_free=True)
+
     context = {"object": obj, "is_owner": is_owner, "attachments": attachments}
     return render(request, "products/detail.html", context)
+
 
 
 def product_attachment_download(request, handle=None, pk=None):

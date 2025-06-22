@@ -71,13 +71,22 @@ def purchase_success(request):
             purchase = Purchase.objects.get(stripe_checkout_session_id=session_id)
             purchase.completed = True
             purchase.save()
+            del request.session['purchase_id']
         except Purchase.DoesNotExist:
             return HttpResponseBadRequest("Purchase not found")
 
-        return HttpResponse("Success: payment completed!")
+        # return HttpResponse("Success: payment completed!")
+        return HttpResponseRedirect(purchase.product.get_absolute_url())
     else:
         return HttpResponse("Payment not completed.")
 
 
 def purchase_stopped(request):
+    purchase_id = request.session.get("purchase_id")
+
+    if purchase_id:
+        purchase = Purchase.objects.get(id=purchase_id)
+        product = purchase.product
+        del request.session['purchase_id']
+        return HttpResponseRedirect(product.get_absolute_url())
     return HttpResponse("Stopped")
